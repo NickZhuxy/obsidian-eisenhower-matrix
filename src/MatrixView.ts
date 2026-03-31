@@ -1,8 +1,16 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
+import { MatrixRenderer } from "./MatrixRenderer";
+import { TaskStore } from "./TaskStore";
+import { PluginSettings } from "./types";
 
 export const VIEW_TYPE_MATRIX = "eisenhower-matrix";
 
 export class MatrixView extends ItemView {
+  private renderer: MatrixRenderer | null = null;
+  private store: TaskStore | null = null;
+  private settings: PluginSettings | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
   }
@@ -19,17 +27,51 @@ export class MatrixView extends ItemView {
     return "scatter-chart";
   }
 
+  initialize(store: TaskStore, settings: PluginSettings): void {
+    this.store = store;
+    this.settings = settings;
+  }
+
   async onOpen(): Promise<void> {
     const container = this.contentEl;
     container.empty();
     container.addClass("eisenhower-matrix-container");
-    container.createEl("div", {
-      text: "Eisenhower Matrix — view loaded",
-      cls: "eisenhower-placeholder",
-    });
+
+    if (!this.store || !this.settings) return;
+
+    this.renderer = new MatrixRenderer(container, {
+      onDotMouseDown: () => {},  // Task 6: DragManager
+      onDotClick: () => {},      // Task 8: DetailPanel
+      onCanvasDblClick: (px, py) => this.handleCreateTask(px, py),
+    }, this.settings);
+
+    this.store.onChange(() => this.renderDots());
+
+    this.resizeObserver = new ResizeObserver(() => this.renderDots());
+    this.resizeObserver.observe(container);
+
+    // Initial render after layout settles
+    setTimeout(() => this.renderDots(), 50);
   }
 
   async onClose(): Promise<void> {
-    this.contentEl.empty();
+    this.resizeObserver?.disconnect();
+    this.renderer?.destroy();
+    this.renderer = null;
+  }
+
+  refreshSettings(settings: PluginSettings): void {
+    this.settings = settings;
+    this.renderer?.updateSettings(settings);
+    this.renderDots();
+  }
+
+  private renderDots(): void {
+    if (!this.renderer || !this.store) return;
+    this.renderer.render(this.store.getTasks());
+  }
+
+  private async handleCreateTask(px: number, py: number): Promise<void> {
+    // Will be implemented in Task 7
   }
 }

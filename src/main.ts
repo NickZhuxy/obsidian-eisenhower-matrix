@@ -1,14 +1,25 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
 import { MatrixView, VIEW_TYPE_MATRIX } from "./MatrixView";
+import { TaskStore } from "./TaskStore";
 import { PluginData, DEFAULT_DATA } from "./types";
 
 export default class EisenhowerMatrixPlugin extends Plugin {
   data: PluginData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  store: TaskStore | null = null;
 
   async onload() {
     await this.loadPluginData();
 
-    this.registerView(VIEW_TYPE_MATRIX, (leaf) => new MatrixView(leaf));
+    this.store = new TaskStore(this.data, async (d) => {
+      this.data = d;
+      await this.savePluginData();
+    });
+
+    this.registerView(VIEW_TYPE_MATRIX, (leaf) => {
+      const view = new MatrixView(leaf);
+      view.initialize(this.store!, this.data.settings);
+      return view;
+    });
 
     this.addRibbonIcon("scatter-chart", "Open Eisenhower Matrix", () => {
       this.activateView();
