@@ -11,10 +11,10 @@ if you want to view the source, please visit the github repository of this plugi
 const prod = process.argv[2] === "production";
 
 // Dev: copy output to vault for live testing
-const vaultPluginDir =
-  "/Users/nickzhu/Documents/Nick's Second Brain/.obsidian/plugins/obsidian-eisenhower-matrix";
+const vaultPluginDir = process.env.VAULT_PLUGIN_DIR;
 
 function copyToVault() {
+  if (!vaultPluginDir) return;
   if (!existsSync(vaultPluginDir)) {
     mkdirSync(vaultPluginDir, { recursive: true });
   }
@@ -29,6 +29,7 @@ const copyPlugin = {
   name: "copy-to-vault",
   setup(build) {
     build.onEnd(() => {
+      if (!vaultPluginDir) return;
       try {
         copyToVault();
         console.log("Copied to vault plugin directory");
