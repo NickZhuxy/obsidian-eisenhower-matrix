@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-eisenhower-matrix",
+  "name": "Eisenhower Matrix",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "Visualize tasks as draggable dots on a continuous urgency/importance matrix.",
+  "author": "Nick Zhu",
+  "isDesktopOnly": false
+}
