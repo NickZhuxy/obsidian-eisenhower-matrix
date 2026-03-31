@@ -133,3 +133,116 @@
   min-width: 120px;
   transform: translateX(-50%) translateY(-50%);
 }
+
+/* Detail Panel */
+.eisenhower-detail-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 100%;
+  background: var(--background-secondary);
+  border-left: 1px solid var(--background-modifier-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 50;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+  overflow-y: auto;
+}
+
+.eisenhower-detail-panel--open {
+  transform: translateX(0);
+}
+
+.eisenhower-detail-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eisenhower-detail-panel__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.eisenhower-detail-panel__name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-normal);
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.eisenhower-detail-panel__name-input {
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--background-primary);
+  border: 1px solid var(--interactive-accent);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--text-normal);
+  width: 100%;
+  outline: none;
+}
+
+.eisenhower-detail-panel__stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.eisenhower-detail-panel__stat-label {
+  color: var(--text-muted);
+}
+
+.eisenhower-detail-panel__stat-value {
+  font-weight: 500;
+}
+
+.eisenhower-detail-panel__bar {
+  height: 3px;
+  background: var(--background-modifier-border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.eisenhower-detail-panel__bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.eisenhower-detail-panel__actions {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.eisenhower-detail-panel__btn {
+  flex: 1;
+  text-align: center;
+  padding: 6px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-normal);
+}
+
+.eisenhower-detail-panel__btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.eisenhower-detail-panel__btn--done {
+  color: var(--color-green, #a6e3a1);
+}
+
+.eisenhower-detail-panel__btn--delete {
+  color: var(--color-red, #f38ba8);
+}

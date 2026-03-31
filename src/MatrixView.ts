@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { MatrixRenderer } from "./MatrixRenderer";
 import { DragManager } from "./DragManager";
+import { DetailPanel } from "./DetailPanel";
 import { TaskStore } from "./TaskStore";
 import { PluginSettings } from "./types";
 import { pixelToNormalized } from "./utils";
@@ -10,6 +11,7 @@ export const VIEW_TYPE_MATRIX = "eisenhower-matrix";
 export class MatrixView extends ItemView {
   private renderer: MatrixRenderer | null = null;
   private dragManager: DragManager | null = null;
+  private detailPanel: DetailPanel | null = null;
   private store: TaskStore | null = null;
   private settings: PluginSettings | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -47,15 +49,48 @@ export class MatrixView extends ItemView {
         const dot = this.renderer?.getDotElement(task.id);
         if (dot) this.dragManager?.startDrag(task, dot, event);
       },
-      onDotClick: () => {},  // Task 8: DetailPanel
+      onDotClick: (task) => {
+        const fullTask = this.store!.getTask(task.id);
+        if (fullTask) this.detailPanel?.open(fullTask);
+      },
       onCanvasDblClick: (px, py) => this.handleCreateTask(px, py),
     }, this.settings);
 
-    this.dragManager = new DragManager(this.renderer.getCanvasEl(), {
+    const canvasEl = this.renderer.getCanvasEl();
+
+    this.dragManager = new DragManager(canvasEl, {
       onDragMove: () => {},
       onDragEnd: async (taskId, x, y) => {
         await this.store!.updateTask(taskId, { x, y });
       },
+    });
+
+    this.detailPanel = new DetailPanel(canvasEl, {
+      onMarkDone: async (taskId) => {
+        const task = this.store!.getTask(taskId);
+        if (task) {
+          await this.store!.updateTask(taskId, {
+            done: !task.done,
+            doneAt: task.done ? undefined : Date.now(),
+          });
+        }
+      },
+      onDelete: async (taskId) => {
+        await this.store!.deleteTask(taskId);
+      },
+      onRename: async (taskId, newName) => {
+        await this.store!.updateTask(taskId, { name: newName });
+      },
+    });
+
+    // Close detail panel when clicking canvas background
+    canvasEl.addEventListener("click", (e) => {
+      if (
+        (e.target as HTMLElement) === canvasEl &&
+        this.detailPanel?.isOpen()
+      ) {
+        this.detailPanel.close();
+      }
     });
 
     this.store.onChange(() => this.renderDots());
@@ -69,9 +104,11 @@ export class MatrixView extends ItemView {
   async onClose(): Promise<void> {
     this.resizeObserver?.disconnect();
     this.dragManager?.destroy();
+    this.detailPanel?.destroy();
     this.renderer?.destroy();
     this.renderer = null;
     this.dragManager = null;
+    this.detailPanel = null;
   }
 
   refreshSettings(settings: PluginSettings): void {
