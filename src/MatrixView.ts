@@ -1,5 +1,6 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { MatrixRenderer } from "./MatrixRenderer";
+import { DragManager } from "./DragManager";
 import { TaskStore } from "./TaskStore";
 import { PluginSettings } from "./types";
 
@@ -7,6 +8,7 @@ export const VIEW_TYPE_MATRIX = "eisenhower-matrix";
 
 export class MatrixView extends ItemView {
   private renderer: MatrixRenderer | null = null;
+  private dragManager: DragManager | null = null;
   private store: TaskStore | null = null;
   private settings: PluginSettings | null = null;
   private resizeObserver: ResizeObserver | null = null;
@@ -40,24 +42,35 @@ export class MatrixView extends ItemView {
     if (!this.store || !this.settings) return;
 
     this.renderer = new MatrixRenderer(container, {
-      onDotMouseDown: () => {},  // Task 6: DragManager
-      onDotClick: () => {},      // Task 8: DetailPanel
+      onDotMouseDown: (task, event) => {
+        const dot = this.renderer?.getDotElement(task.id);
+        if (dot) this.dragManager?.startDrag(task, dot, event);
+      },
+      onDotClick: () => {},  // Task 8: DetailPanel
       onCanvasDblClick: (px, py) => this.handleCreateTask(px, py),
     }, this.settings);
+
+    this.dragManager = new DragManager(this.renderer.getCanvasEl(), {
+      onDragMove: () => {},
+      onDragEnd: async (taskId, x, y) => {
+        await this.store!.updateTask(taskId, { x, y });
+      },
+    });
 
     this.store.onChange(() => this.renderDots());
 
     this.resizeObserver = new ResizeObserver(() => this.renderDots());
     this.resizeObserver.observe(container);
 
-    // Initial render after layout settles
     setTimeout(() => this.renderDots(), 50);
   }
 
   async onClose(): Promise<void> {
     this.resizeObserver?.disconnect();
+    this.dragManager?.destroy();
     this.renderer?.destroy();
     this.renderer = null;
+    this.dragManager = null;
   }
 
   refreshSettings(settings: PluginSettings): void {
