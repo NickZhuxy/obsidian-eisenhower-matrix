@@ -2,6 +2,7 @@ import { Plugin, WorkspaceLeaf } from "obsidian";
 import { MatrixView, VIEW_TYPE_MATRIX } from "./MatrixView";
 import { TaskStore } from "./TaskStore";
 import { PluginData, DEFAULT_DATA } from "./types";
+import { EisenhowerSettingTab } from "./settings";
 
 export default class EisenhowerMatrixPlugin extends Plugin {
   data: PluginData = JSON.parse(JSON.stringify(DEFAULT_DATA));
@@ -41,9 +42,19 @@ export default class EisenhowerMatrixPlugin extends Plugin {
         }
       },
     });
+
+    this.addSettingTab(new EisenhowerSettingTab(this.app, this));
   }
 
   onunload() {}
+
+  refreshViews(): void {
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_MATRIX);
+    for (const leaf of leaves) {
+      const view = leaf.view as MatrixView;
+      view.refreshSettings(this.data.settings);
+    }
+  }
 
   async activateView(): Promise<void> {
     const { workspace } = this.app;
