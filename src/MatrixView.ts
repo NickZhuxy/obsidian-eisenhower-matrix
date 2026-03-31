@@ -3,6 +3,7 @@ import { MatrixRenderer } from "./MatrixRenderer";
 import { DragManager } from "./DragManager";
 import { TaskStore } from "./TaskStore";
 import { PluginSettings } from "./types";
+import { pixelToNormalized } from "./utils";
 
 export const VIEW_TYPE_MATRIX = "eisenhower-matrix";
 
@@ -85,6 +86,33 @@ export class MatrixView extends ItemView {
   }
 
   private async handleCreateTask(px: number, py: number): Promise<void> {
-    // Will be implemented in Task 7
+    if (!this.store || !this.renderer) return;
+
+    const canvasEl = this.renderer.getCanvasEl();
+    const input = canvasEl.createEl("input", {
+      cls: "eisenhower-inline-input",
+      attr: { type: "text", placeholder: "Task name..." },
+    });
+    input.style.left = `${px}px`;
+    input.style.top = `${py}px`;
+    input.focus();
+
+    const cleanup = () => input.remove();
+
+    input.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        const name = input.value.trim();
+        if (name) {
+          const { width, height } = this.renderer!.getCanvasSize();
+          const { x, y } = pixelToNormalized(px, py, width, height);
+          await this.store!.addTask(name, x, y);
+        }
+        cleanup();
+      } else if (e.key === "Escape") {
+        cleanup();
+      }
+    });
+
+    input.addEventListener("blur", cleanup);
   }
 }

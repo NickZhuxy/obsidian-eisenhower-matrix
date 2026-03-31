@@ -30,6 +30,17 @@ export default class EisenhowerMatrixPlugin extends Plugin {
       name: "Open Eisenhower Matrix",
       callback: () => this.activateView(),
     });
+
+    this.addCommand({
+      id: "create-task-in-matrix",
+      name: "Create task in matrix",
+      callback: async () => {
+        await this.activateView();
+        if (this.store) {
+          await this.store.addTask("New task", 0.5, 0.5);
+        }
+      },
+    });
   }
 
   onunload() {}
