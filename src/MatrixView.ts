@@ -49,19 +49,18 @@ export class MatrixView extends ItemView {
         const dot = this.renderer?.getDotElement(task.id);
         if (dot) this.dragManager?.startDrag(task, dot, event);
       },
-      onDotClick: (task) => {
-        const fullTask = this.store!.getTask(task.id);
-        if (fullTask) this.detailPanel?.open(fullTask);
-      },
       onCanvasDblClick: (px, py) => this.handleCreateTask(px, py),
     }, this.settings);
 
     const canvasEl = this.renderer.getCanvasEl();
 
     this.dragManager = new DragManager(canvasEl, {
-      onDragMove: () => {},
       onDragEnd: async (taskId, x, y) => {
         await this.store!.updateTask(taskId, { x, y });
+      },
+      onClick: (taskId) => {
+        const task = this.store!.getTask(taskId);
+        if (task) this.detailPanel?.open(task);
       },
     });
 

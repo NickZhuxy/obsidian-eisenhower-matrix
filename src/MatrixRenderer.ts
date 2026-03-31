@@ -3,7 +3,6 @@ import { normalizedToPixel, positionToColor } from "./utils";
 
 export interface MatrixRendererCallbacks {
   onDotMouseDown: (task: EisenhowerTask, event: MouseEvent) => void;
-  onDotClick: (task: EisenhowerTask, event: MouseEvent) => void;
   onCanvasDblClick: (x: number, y: number, event: MouseEvent) => void;
 }
 
@@ -81,9 +80,6 @@ export class MatrixRenderer {
       dot.addEventListener("mousedown", (e) => {
         e.preventDefault();
         this.callbacks.onDotMouseDown(task, e);
-      });
-      dot.addEventListener("click", (e) => {
-        this.callbacks.onDotClick(task, e);
       });
     }
   }

@@ -16,7 +16,7 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  dotSize: 12,
+  dotSize: 16,
   showAxisLabels: true,
   showQuadrantLabels: true,
   hideCompleted: false,
