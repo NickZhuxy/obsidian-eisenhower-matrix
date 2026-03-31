@@ -40,6 +40,11 @@ export class MatrixRenderer {
 
   updateSettings(settings: PluginSettings): void {
     this.settings = settings;
+    // Re-render labels when settings change
+    this.canvasEl.querySelectorAll(
+      ".eisenhower-axis-label, .eisenhower-quadrant-label"
+    ).forEach((el) => el.remove());
+    this.renderLabels();
   }
 
   render(tasks: EisenhowerTask[]): void {

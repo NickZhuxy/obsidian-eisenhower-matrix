@@ -64,7 +64,6 @@ export class DetailPanel {
     });
     doneBtn.addEventListener("click", () => {
       this.callbacks.onMarkDone(task.id);
-      this.close();
     });
 
     const deleteBtn = actions.createEl("button", {

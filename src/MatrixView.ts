@@ -73,6 +73,15 @@ export class MatrixView extends ItemView {
             done: !task.done,
             doneAt: task.done ? undefined : Date.now(),
           });
+          const updated = this.store!.getTask(taskId);
+          if (updated && this.detailPanel?.getCurrentTaskId() === taskId) {
+            if (this.settings?.hideCompleted && updated.done) {
+              this.detailPanel.close();
+            } else {
+              this.detailPanel.close();
+              this.detailPanel.open(updated);
+            }
+          }
         }
       },
       onDelete: async (taskId) => {
@@ -80,6 +89,10 @@ export class MatrixView extends ItemView {
       },
       onRename: async (taskId, newName) => {
         await this.store!.updateTask(taskId, { name: newName });
+        const updated = this.store!.getTask(taskId);
+        if (updated && this.detailPanel?.getCurrentTaskId() === taskId) {
+          this.detailPanel.open(updated);
+        }
       },
     });
 

@@ -73,10 +73,16 @@ export default class EisenhowerMatrixPlugin extends Plugin {
 
   async loadPluginData(): Promise<void> {
     const saved = await this.loadData();
-    this.data = Object.assign(
-      JSON.parse(JSON.stringify(DEFAULT_DATA)),
-      saved
-    );
+    const base = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    if (saved) {
+      this.data = {
+        ...base,
+        ...saved,
+        settings: { ...base.settings, ...(saved.settings ?? {}) },
+      };
+    } else {
+      this.data = base;
+    }
   }
 
   async savePluginData(): Promise<void> {

@@ -68,8 +68,9 @@ export class DragManager {
     document.removeEventListener("mousemove", this.boundMouseMove);
     document.removeEventListener("mouseup", this.boundMouseUp);
 
-    this.callbacks.onDragEnd(this.dragging.taskId, x, y);
+    const taskId = this.dragging.taskId;
     this.dragging = null;
+    this.callbacks.onDragEnd(taskId, x, y);
   }
 
   private showDragTooltip(px: number, py: number, x: number, y: number): void {
